@@ -1,0 +1,68 @@
+# -------------------------------
+# Python & Virtual Environments
+# -------------------------------
+# Ignore the entire virtual environment folder
+venv/
+.env/
+.venv/
+ENV/
+env/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# -------------------------------
+# Secret & Configuration Files (CRITICAL)
+# -------------------------------
+# Never upload your environment file with secret keys
+.env
+
+# Never upload your API tokens file
+config/tokens.json
+
+# -------------------------------
+# Large Files & ML Models
+# -------------------------------
+# Ignore the large, downloaded AI model cache
+models/
+*.safetensors
+*.bin
+
+# -------------------------------
+# User Uploads & Temporary Files
+# -------------------------------
+# Ignore folders for temporary or user-uploaded files
+uploads/
+temp_uploads/
+
+# -------------------------------
+# Generated Data & Logs
+# -------------------------------
+# It's best practice to not track generated data in Git.
+# The raw resumes can be kept as samples if desired.
+data/resumes_parsed/
+data/matches/
+data/jobs.json
+*.log
+*.tmp
+*.lock
+*.bak
+
+# -------------------------------
+# IDEs & Editors
+# -------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------------
+# OS-specific
+# -------------------------------
+.DS_Store
+Thumbs.db
