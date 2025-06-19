@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import re
 import math
-
+import os
 # Page Confirmation
 st.set_page_config(
     page_title="AI Resume Job Matcher",
@@ -32,7 +32,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Api endpoint
-API_URL = "https://Kpole95-ai-resume-backend-api.hf.space/resumes/search-and-score"
+API_URL = os.getenv("API_URL", "http://localhost:8000/resumes/search-and-score")
+
 # Experienc options
 EXPERIENCE_LEVELS = [
     "Doesn't matter", "Нет опыта", "От 1 года до 3 лет",
