@@ -1,15 +1,59 @@
+# File: deployment/docker-compose.yml
+# This file defines and runs all three services: database, backend, and frontend.
+
+version: '3.8'
+
 services:
+  # 1. The Database Service
   db:
     image: mysql:8.0
+    # These environment variables configure the MySQL database inside the container.
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: resume_matcher
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
-      - "3307:3306"
+      - "3307:3306" # Maps your local machine's port 3307 to the container's port 3306
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql # This saves the database data even if you stop the container
+    networks:
+      - resume-net
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # 2. The Backend API Service
+  backend:
+    build:
+      context: .. # The build context is the root directory of your project
+      dockerfile: Dockerfile # It uses the Dockerfile in the root directory
+    env_file:
+      - ../.env # It loads all the variables from your new .env file
+    ports:
+      - "8000:8080" # Maps your local machine's port 8000 to the container's port 8080
+    depends_on:
+      - db # This tells Docker to wait for the database to start before starting the backend
+    networks:
+      - resume-net
+
+  # 3. The Frontend Streamlit Service
+  frontend:
+    build:
+      context: .. # The build context is also the root directory
+      dockerfile: frontend/Dockerfile # It uses the Dockerfile inside your frontend/ directory
+    env_file:
+      - ../.env # It also loads the .env file to get the API_URL
+    ports:
+      - "8501:8080" # Maps your local machine's port 8501 to the container's port 8080
+    depends_on:
+      - backend # It waits for the backend to be ready before starting
+    networks:
+      - resume-net
+
+# Defines the private network that allows the containers to communicate with each other
+networks:
+  resume-net:
+    driver: bridge
+
+# Defines the volume to persist database data
 volumes:
   db_data:

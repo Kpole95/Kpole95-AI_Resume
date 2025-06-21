@@ -1,11 +1,16 @@
+# File: backend/parsers/parse_resumes.py
+
+import os
 import re
 import logging
 from docx import Document
+from PyPDF2 import PdfReader # [NEW] Import the library for reading PDF files
 from langdetect import detect, LangDetectException
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# --- NO CHANGES TO YOUR KEYWORDS OR DATA ---
 HEADER_MAPPING = {
     "contact_info": ["contact", "contact info", "contact information", "personal details", "контакты", "контактная информация"],
     "summary": ["summary", "objective", "professional summary", "career objective", "о себе", "профиль", "цель"],
@@ -68,8 +73,24 @@ SKILL_DATABASE = [
 
 def extract_resume_data(file_path: str) -> dict:
     try:
-        doc = Document(file_path)
-        full_text_lines = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+        _, file_extension = os.path.splitext(file_path)
+        full_text_lines = []
+
+        if file_extension.lower() == '.docx':
+            doc = Document(file_path)
+            full_text_lines = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+        
+        elif file_extension.lower() == '.pdf':
+            with open(file_path, 'rb') as f:
+                reader = PdfReader(f)
+                for page in reader.pages:
+                    full_text_lines.extend(page.extract_text().split('\n'))
+            full_text_lines = [line.strip() for line in full_text_lines if line.strip()]
+
+        else:
+            raise ValueError(f"Unsupported file type: {file_extension}. Please upload a .docx or .pdf file.")
+
+        
         full_text = "\n".join(full_text_lines)
         all_headers_to_standard_key = {
             header.upper(): standard_key
@@ -89,24 +110,29 @@ def extract_resume_data(file_path: str) -> dict:
             if is_header and current_section_key not in parsed_sections:
                 parsed_sections[current_section_key] = []
             elif not is_header:
+                if current_section_key not in parsed_sections:
+                    parsed_sections[current_section_key] = []
                 parsed_sections[current_section_key].append(line)
+        
         final_data = {
             key: "\n".join(content).strip() for key, content in parsed_sections.items() if content
         }
+        
         final_data['found_skills'] = sorted(list({
             skill.title() for skill in SKILL_DATABASE
             if re.search(r'\b' + re.escape(skill) + r'\b', full_text, re.IGNORECASE)
         }))
+        
         try:
             final_data['detected_language'] = detect(full_text)
         except LangDetectException:
             final_data['detected_language'] = 'unknown'
         
-        # --- FIX #3: Final, simpler Name Detection ---
         final_data['name'] = final_data.get('header', '').split('\n')[0] if final_data.get('header') else "N/A"
             
         logger.info(f"parser successfully extracted {len(final_data)} sections.")
         return final_data
+
     except Exception as e:
         logger.error(f"A critical error occurred in the universal parser for file {file_path}: {str(e)}")
         raise RuntimeError(f"Could not parse the resume. The file may be corrupted or in an unsupported format. Details: {str(e)}")
