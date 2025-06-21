@@ -3,14 +3,14 @@ import requests
 import re
 import math
 import os
-# Page Confirmation
+# page confirmation
 st.set_page_config(
     page_title="AI Resume Job Matcher",
     page_icon="🎯",
     layout="wide"
 )
 
-# Styling
+# Style
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -159,7 +159,7 @@ with st.container(border=True):
 
     st.caption("Job data sourced from hh.ru")
 
-# Optional grouped titles reviewd
+# optional grouped titles reviewd
 with st.expander("💼 View All Suggested Job Titles by Industry"):
     for industry, titles in INDUSTRY_JOB_TITLES.items():
         st.markdown(f"**{industry}**")
