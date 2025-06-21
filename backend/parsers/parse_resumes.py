@@ -1,16 +1,13 @@
-# File: backend/parsers/parse_resumes.py
-
 import os
 import re
 import logging
 from docx import Document
-from PyPDF2 import PdfReader # [NEW] Import the library for reading PDF files
+from PyPDF2 import PdfReader
 from langdetect import detect, LangDetectException
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- NO CHANGES TO YOUR KEYWORDS OR DATA ---
 HEADER_MAPPING = {
     "contact_info": ["contact", "contact info", "contact information", "personal details", "контакты", "контактная информация"],
     "summary": ["summary", "objective", "professional summary", "career objective", "о себе", "профиль", "цель"],
